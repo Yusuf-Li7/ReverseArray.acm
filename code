@@ -1,0 +1,92 @@
+;вариант 10
+format PE console
+
+entry start
+
+include 'win32a.inc'
+
+section '.data' data readable writable
+        strN db 'Enter array lenght from 1 to 100: ', 0
+        strNext db '[%d]? ', 0
+
+        resStr db 'Result: [%d] = ', 0
+        emptyRes db 10, 13, '[%d] = ', 0
+        emptyResStr db '%d', 0
+
+        spaceStr db ' %d', 0
+        emptyStr db '%d', 0
+
+        arr rd 101
+        N dd ?
+        i dd ?
+
+        Null = 0
+
+section '.code' code readable executable
+        start:
+                push strN
+                call [printf]
+
+                push N
+                push emptyStr
+                call [scanf]
+
+                mov ebx, 0 ;цикл
+                lp:
+                        push ebx
+                        push strNext
+                        call [printf]
+
+                        push i
+                        push spaceStr
+                        call [scanf]
+
+                        mov ecx, [i]
+                        mov [arr + ebx * 4], ecx
+
+                        ;push [i]
+                        ;push emptyStr
+                        ;call [printf]
+
+                        add ebx, 1
+                        cmp ebx, [N] ;длина цикла
+                jne lp
+
+                mov ebx, [N] ;цикл
+                sub ebx, 1
+                lp2:
+                        mov ecx, [N]
+                        sub ecx, ebx
+                        sub ecx, 1
+                        push ecx
+                        push emptyRes
+                        call [printf]
+
+                        push [arr + ebx * 4]
+                        push emptyResStr
+                        call [printf]
+
+                        sub ebx, 1
+                        cmp ebx, -1 ;длина цикла
+                jne lp2
+
+                jmp finish
+
+                finish:
+                call [getch]
+
+                push Null
+                call [ExitProcess]
+
+
+section '.idata' import data readable
+        library kernel, 'kernel32.dll',\
+                msvcrt, 'msvcrt.dll'
+
+        import kernel, \
+               ExitProcess, 'ExitProcess'
+
+        import msvcrt,\
+               printf, 'printf',\
+               scanf, 'scanf',\
+               getch, '_getch'
